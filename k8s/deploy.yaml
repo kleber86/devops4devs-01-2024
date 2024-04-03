@@ -39,6 +39,7 @@ kind: Deployment
 metadata:
   name: web
 spec:
+  replicas: 5
   selector:
     matchLabels:
       app: web
@@ -49,7 +50,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: kaan86/devops4devs-news:v1
+          image: kaan86/devops4devs-news:v2
           ports:
             - containerPort: 8080
           env:

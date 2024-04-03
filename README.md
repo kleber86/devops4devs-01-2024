@@ -158,3 +158,7 @@ spec:
 Recriar o cluster com loadbalancer: `k3d cluster create meucluster --servers 3 --agents 3 -p "30000:30000@loadbalancer"`
 
 Para o projeto funcionar foi necessario alterar os arquivos do app, os arquivos da aula passada foram do conversor e o desta aula é o kubenews. Com isso as imagens precisaram ser recriadas.
+
+Consultar o histórico dos deployments: `kubectl rollout history deployment web`
+
+Fazer o rollback: `kubectl rollout undo deployment web`
