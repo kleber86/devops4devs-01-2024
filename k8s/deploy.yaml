@@ -33,3 +33,44 @@ spec:
     app: postgre
   ports:
     - port: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: kaan86/devops4devs-news:v1
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_DATABASE
+              value: "news"
+            - name: DB_USERNAME
+              value: "newuser" 
+            - name: DB_PASSWORD
+              value: "newspwd"
+            - name: DB_HOST
+              value: postgre
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector:
+    app: web
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30000
+  type: NodePort
