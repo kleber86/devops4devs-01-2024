@@ -98,3 +98,63 @@ postgre-6dc7c9f6dc-kw2c9           1/1     Running   0          7m38s
 ```
 
 Configurar o port-forward do banco de dados: `kubectl port-forward nome_do_pod 5432:5432`
+
+Criação de uma imagem localmente para subir no dockerhub: `docker build -t kaan086/devops4devs-news:v1 .`
+
+Logar no DockerHub: `docker login`
+
+Subir imagem para o DockerHub: `docker push kaan86/devops4devs-news:v1` 
+
+Criar imagem latest: `docker tag kaan86/devops4devs-news:v1 kaan86/devops4devs-news`
+
+Subir imagem latest para o DockerHub: `docker push kaan86/devops4devs-news`
+
+Configurar o manifesto da aplicação web: `kubectl apply -f k8s/deploy.yaml`
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: kaan86/devops4devs-news:v1
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_DATABASE
+              value: "news"
+            - name: DB_USERNAME
+              value: "newuser" 
+            - name: DB_PASSWORD
+              value: "newspwd"
+            - name: DB_HOST
+              value: postgre
+```
+
+Criar o Service do container web e atualiza o manifesto:
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector:
+    app: web
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: NodePort
+```
+
+Recriar o cluster com loadbalancer: `k3d cluster create meucluster --servers 3 --agents 3 -p "30000:30000@loadbalancer"`
+
+Para o projeto funcionar foi necessario alterar os arquivos do app, os arquivos da aula passada foram do conversor e o desta aula é o kubenews. Com isso as imagens precisaram ser recriadas.
