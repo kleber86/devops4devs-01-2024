@@ -157,6 +157,110 @@ spec:
 
 Recriar o cluster com loadbalancer: `k3d cluster create meucluster --servers 3 --agents 3 -p "30000:30000@loadbalancer"`
 
+Consultar o histórico dos deployments: `kubectl rollout history deployment web`
+
+<<<<<<< HEAD
+Fazer o rollback: `kubectl rollout undo deployment web`
+
+### :memo: Aula 03 - 04/04/2024 
+
+# AWS - IAM
+
+Instalação do AWS LCI: `https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html`
+
+Criação de um usuario para gerenciamento no IAM.
+Policies - Politicas de acesso.
+Users - Usuários com acesso ao gerenciamento.
+User Groups - Permissões baseadas em grupos.
+Roles - Autenticação de um servico AWS.
+
+Criar um grupo: administrador com a police AdministratorAccess.
+Criar um usuario: administrador
+ - Provider user acesss to the AWS.
+ - Tipo de acesso: I want to create an IAM user;
+ - Console password: escolha da senha ou gerar uma senha.
+ - Permissions options: adicionar o grupo.
+ - No final irá aparecer o Console sign-in details.
+ - Logar usando as credenciais recebidas acima para não utilizar um conta root.
+
+Criando uma secret para o usuario utilizar o cli
+- No IAM na parte de usuarios.
+- Access key, será gerado um Access key e secrect access key.
+- Depois de gerado as informações acima, no terminal executar o comando `aws configure` e preencher as informações abaixo:
+```
+aws configure
+AWS Access Key ID [None]: xxxxxxx
+AWS Secret Access Key [None]: xxxxxxx
+Default region name [None]: us-east-1
+Default output format [None]:
+```
+
+Criação e configuração do S3(armazenamento)
+Pesquisar por S3.
+Criar um bucket, escolher a região, o nome único, ACL enabled, liberar o acesso ao bucker, desabilitar o versionamento.
+
+Alterações no projeto:
+Adicionar no manifesto as configurações da AWS:
+```
+- name: AWS_ACCESS_KEY
+  value: "xxxxxx"
+- name: AWS_ACCESS_SECRET
+  value: "xxxxxxx"
+- name: AWS_S3_BUCKET_NAME
+  value: kleber86-devops
+- name: STORAGE_TYPE
+  value: S3
+```
+Atualização, construção e subir para o DockerHub:
+````
+docker build -t kaan086/devops4devs-news:v3 --push . 
+```
+Criação das Roles para EKS
+- No IAM 
+- Roles: Create roles, vincular a um serviço EKS Cluster.
+- Adicionar o role name e finalizar.
+- Criando um nova role para EC2:
+- ADD permissions: AmazonEC2ContainerRegistryReadOnly, AmazonEKS_CNI_Policy, AmazonEKSWorkerNodePolicy
+- Adicionar o role name e finalizar.
+
+Criação templetes para Redes:
+- Em CloudFormation: Create Stack
+- Adicionar a url: `https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml`
+- Stack name para adicionar uma nome e pode seguir até o final.
+
+Criação do cluster:
+Elastic Kubernetes Serice:
+Adicionar um nome
+Escolher a versão
+A Role criada anteriomente será adicionada automaticamente.
+Specify Network: 
+- VPC criada anteriormente
+- Security Group criado anteriormente
+Cluster endpoint access: Public e Private e seguir até o final.
+
+Configurar o projeto pelo AWS CLI:
+`aws eks update-kubeconfig --name nome_do_cluster_criado`
+
+Atualizar o manifesto retirando o NodePorte:
+```
+      targetPort: 8080
+  type: LoadBalancer
+```
+AWS CLI executar o manifesto: `kubectl applay -f k8s/deploy.yml`
+
+No cluster criado criar os worknodes:
+Adicionar Node Groups:
+- Adicionar o nome
+- Adicionar a Roles que mostrar automaticamente
+- Escolher as imagens
+- Instance types: Escolher o pefil das maquinas
+- Node group scaling: Desired: 2, Min: 1, Max: 3
+- Specify Network: Excluir as publicas por ser uma boa pratica.
+
+Consultar os nodes criados: `kubectl get nodes`
+
+Consultar o Serice para pegar o endereço externo: `kubectl get all`
+
 Para o projeto funcionar foi necessario alterar os arquivos do app, os arquivos da aula passada foram do conversor e o desta aula é o kubenews. Com isso as imagens precisaram ser recriadas.
 
 Consultar o histórico dos deployments: `kubectl rollout history deployment web`
